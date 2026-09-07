@@ -2,8 +2,9 @@
 import "./globals.css";
 import { Geist } from "next/font/google";
 import { cn } from "@/lib/utils";
+import { Toaster } from "@/components/ui/sonner";
 
-const geist = Geist({subsets:['latin'],variable:'--font-sans'});
+const geist = Geist({ subsets: ['latin'], variable: '--font-sans' });
 
 
 // export const metadata: Metadata = {
@@ -18,7 +19,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={cn("h-full antialiased", "font-sans", geist.variable)}>
       <body className="">
         <h1>Navbar</h1>
-        {children}
+        <main className="min-w-7xl mx-auto">
+          {children}
+        </main>
+        <Toaster position="top-center" />
+
       </body>
     </html>
   );
