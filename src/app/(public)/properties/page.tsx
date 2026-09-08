@@ -1,6 +1,6 @@
 const Properties = () => {
     return (
-        <div>
+        <div className="">
             <h1>All Properties page. Public Route</h1>
         </div>
     )

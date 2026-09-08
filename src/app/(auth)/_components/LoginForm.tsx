@@ -11,11 +11,10 @@ const LoginForm = () => {
     useEffect(() => {
         if (!state) return
         if (state.success) {
-            toast.success('Login Successfully')
-
-            if (!state.success) {
-                toast.error('Login Successfully')
-            }
+            toast.success('Login Successfully');
+        }
+        if (!state.success) {
+            toast.error('Login Successfully')
         }
     }, [state])
     return (

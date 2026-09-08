@@ -2,6 +2,7 @@
 
 import { cookies } from "next/headers"
 
+
 type LoginState = {
     "success": true,
     statusCode: number,
@@ -27,7 +28,7 @@ export const LoginAction = async (prevState: LoginState, formData: FormData) => 
         },
         body: JSON.stringify(payload)
     })
-    const result: LoginState = await res.json();
+    const result = await res.json();
     if (result.success) {
         const cookieStore = await cookies();
         cookieStore.set('accessToken', result.data.accessToken, {
@@ -43,5 +44,4 @@ export const LoginAction = async (prevState: LoginState, formData: FormData) => 
     }
 
     return result;
-
 }

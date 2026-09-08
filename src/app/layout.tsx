@@ -3,6 +3,7 @@ import "./globals.css";
 import { Geist } from "next/font/google";
 import { cn } from "@/lib/utils";
 import { Toaster } from "@/components/ui/sonner";
+import Navbar from "@/components/shared/Navbar";
 
 const geist = Geist({ subsets: ['latin'], variable: '--font-sans' });
 
@@ -18,10 +19,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="en"
       className={cn("h-full antialiased", "font-sans", geist.variable)}>
       <body className="">
-        <h1>Navbar</h1>
-        <main className="min-w-7xl mx-auto">
+        <Navbar />
+
+        <main className="min-w-7xl mx-auto pt-20">
           {children}
         </main>
+
         <Toaster position="top-center" />
 
       </body>
