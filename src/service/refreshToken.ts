@@ -7,7 +7,6 @@ export const getNewAccessToken = async () => {
 
     // if user logged in
     if (!refreshToken) {
-
         return {
             success: false,
             message: "Refresh token not found!"

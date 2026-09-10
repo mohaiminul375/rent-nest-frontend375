@@ -1,7 +1,7 @@
 'use server'
-
+import jwt, { JwtPayload } from "jsonwebtoken"
 import { cookies } from "next/headers"
-
+import { redirect } from "next/navigation"
 
 type LoginState = {
     "success": true,
@@ -42,6 +42,14 @@ export const LoginAction = async (prevState: LoginState, formData: FormData) => 
             sameSite: "lax"
         })
     }
-
+    const decodedToken = jwt.decode(result.data.accessToken) as JwtPayload;
+    console.log(decodedToken, 'decoded login')
+    if (decodedToken.role === "LANDLORD") {
+        redirect("/landlord-dashboard");
+    } else if (decodedToken.role === "TENANT") {
+        redirect("/tenant-dashboard");
+    } else if (decodedToken.role === "ADMIN") {
+        redirect("/admin-dashboard");
+    }
     return result;
 }
