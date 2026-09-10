@@ -5,9 +5,12 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSepar
 import { NavigationMenu, NavigationMenuLink, NavigationMenuList } from '../ui/navigation-menu';
 import { Sheet, SheetContent, SheetTrigger } from '../ui/sheet';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { CiMenuFries } from "react-icons/ci";
 import Image from 'next/image';
+import { RxAvatar } from 'react-icons/rx';
+import { logout } from '@/service/logout';
+import { toast } from 'sonner';
 
 
 const navItems = [
@@ -23,10 +26,35 @@ const navItems = [
         type: 'public',
     },
 ];
-const Navbar = () => {
-    const user = null;
-    
+
+type IUser = {
+    success: boolean,
+    message: string,
+    data: {
+        id: string,
+        name: string,
+        email: string,
+        phone: string,
+        role: string,
+        status: string,
+        address: string,
+        updatedAt: string,
+        createdAt: string,
+    }
+}
+type NavbarProps = {
+    user: IUser
+}
+
+
+const Navbar = ({ user }: NavbarProps) => {
+    const router = useRouter();
     const pathname = usePathname();
+    const handleLogout = async () => {
+        toast.success('Logout Successfully')
+        await logout();
+        router.push('/login')
+    }
     return (
         <header className="flex h-16 w-full items-center px-4 md:px-6 shadow-2xl bg-foreground fixed top-0 z-50">
             {/* Mobile Menu Icon */}
@@ -62,7 +90,7 @@ const Navbar = () => {
                 {/* <MountainIcon /> */}
                 <div className='flex items-center'>
                     {/* <Image className='rounded-full' width={30} src={logo} alt='logo' /> */}
-                    <span className={`ml-2 text-lg md:text-3xl italic font-bold text-white block`}>Rent Nest</span>
+                    <span className={`ml-2 text-lg md:text-3xl italic font-bold text-white block`}>Rent Nest    </span>
                 </div>
             </Link>
             {/* Desktop Navigation Menu */}
@@ -87,21 +115,21 @@ const Navbar = () => {
             </div>
 
             {/* Login/Register Buttons */}
-            {user ? (
+            {user.success ? (
                 <div className="ml-auto flex items-center">
                     <DropdownMenu>
                         <DropdownMenuTrigger>
-                            <Avatar className='border-2 border-white'>
-                                <AvatarImage className='cursor-pointer' src={user?.avatar} alt="avatar" />
+                            <Avatar className='border-2 border-white cursor-pointer'>
+                                <RxAvatar />
                                 <AvatarFallback />
                             </Avatar>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent>
-                            <DropdownMenuLabel className='select-none cursor-not-allowed'>{user?.name}</DropdownMenuLabel>
-                            <DropdownMenuLabel className='select-none cursor-not-allowed'>{user?.email}</DropdownMenuLabel>
+                            <DropdownMenuLabel className='select-none cursor-not-allowed'>{user?.data?.name}</DropdownMenuLabel>
+                            <DropdownMenuLabel className='select-none cursor-not-allowed'>{user?.data?.email}</DropdownMenuLabel>
                             <DropdownMenuLabel className='cursor-pointer'><Link href='/update-profile'>Update Profile</Link></DropdownMenuLabel>
-                            {/* <DropdownMenuLabel className='cursor-pointer' onClick={logOut}>LogOut</DropdownMenuLabel>
-                            <DropdownMenuSeparator /> */}
+                            <DropdownMenuLabel className='cursor-pointer' onClick={async () => { await handleLogout() }}>LogOut</DropdownMenuLabel>
+                            <DropdownMenuSeparator />
                         </DropdownMenuContent>
                     </DropdownMenu>
                 </div>
@@ -114,7 +142,7 @@ const Navbar = () => {
                 </div>
             )}
         </header>
-);
+    );
 };
 
 export default Navbar;
