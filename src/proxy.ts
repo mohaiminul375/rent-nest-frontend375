@@ -3,6 +3,7 @@ import type { NextRequest } from 'next/server'
 import { JwtPayload } from 'jsonwebtoken'
 import { jwtUtils } from './utils/jwt'
 import { cookies } from 'next/headers'
+import { getNewAccessToken } from './service/refreshToken'
 
 // Routes
 const AUTH_ROUTE = ["/login", "/register"]
@@ -13,19 +14,40 @@ export async function proxy(request: NextRequest) {
     // return NextResponse.redirect(new URL('/home', request.url))
     const pathName = request.nextUrl.pathname;
     const cookieStore = await cookies();
-    const accessToken = request.cookies.get("accessToken")?.value;
-    const decodedToken = accessToken ? jwtUtils.verifyToken(accessToken, process.env.JWT_ACCESS_SECRET as string) : null;
+    let accessToken = request.cookies.get("accessToken")?.value;
+    const refreshToken = request.cookies.get("refreshToken")?.value;
 
+    let decodedAccessToken = accessToken ? jwtUtils.verifyToken(accessToken, process.env.JWT_ACCESS_SECRET as string) : null;
+
+    const decodedRefreshToken = refreshToken ? jwtUtils.verifyToken(refreshToken, process.env.JWT_REFRESH_SECRET as string) : null;
+
+
+    if (!decodedAccessToken?.success && decodedRefreshToken?.success) {
+        const result = await getNewAccessToken();
+        if (result.success) {
+            const newAccessToken = result.data.accessToken;
+
+            cookieStore.set("accessToken", newAccessToken, {
+                httpOnly: true,
+                maxAge: 60 * 60 * 24,
+                sameSite: "lax",
+            });
+
+            accessToken = newAccessToken;
+            decodedAccessToken = jwtUtils.verifyToken(accessToken!, process.env.JWT_ACCESS_SECRET as string);
+
+        }
+    }
+   
     let userRole = null;
 
-    // if (!decodedToken?.success) {
-    //     cookieStore.delete("accessToken");
-    //     // return NextResponse.redirect(new URL('/login', request.url))
-    // }
+    //token has expired or is invalid, clear the cookies
+    if (!decodedAccessToken?.success) {
+        cookieStore.delete("accessToken");
+    }
 
-
-    if (decodedToken?.success && decodedToken.data) {
-        userRole = (decodedToken.data as JwtPayload).role;
+    if (decodedAccessToken?.success && decodedAccessToken.data) {
+        userRole = (decodedAccessToken.data as JwtPayload).role;
     }
 
     if (accessToken && AUTH_ROUTE.includes(pathName)) {
